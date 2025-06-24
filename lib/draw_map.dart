@@ -18,6 +18,7 @@ import 'package:arrow_pad/arrow_pad.dart';
 // import 'permissions.dart';
 // import 'package:infinity_view/infinity_view.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'flutter_flow_icon_button.dart';
 
 GlobalKey _keyScreen = GlobalKey();
 // double _nodeSize = kDefaultNodeSize;
@@ -57,6 +58,8 @@ class Chapter {
   double? yCoord;
   DocumentReference? reference;
   int? readStateIndex;
+  double originalXCoord = 0;
+  double originalYCoord = 0;
   Chapter({
     required this.title,
     required this.body,
@@ -180,7 +183,7 @@ const kStandardDuration = Duration(milliseconds: 500);
 
 final List<Color> readStateColors = [
   Color.lerp(Colors.grey, Colors.white, 0.9)!,
-  Color.lerp(Colors.green, Colors.white, 0.75)!,
+  Color.lerp(Colors.green, Colors.white, 0.7)!,
   Colors.lightBlue,
   Colors.blue,
   Colors.amber,
@@ -214,6 +217,10 @@ class _DrawMapState extends State<DrawMap> {
 
     populateChapters();
     areChaptersLoaded = false;
+    for (int i = 0; i < currentChapterList.length; i++) {
+      currentChapterList[i].originalXCoord = currentChapterList[i].xCoord!;
+      currentChapterList[i].originalYCoord = currentChapterList[i].yCoord!;
+    }
     print('(D1000)${items!.length}');
   }
 
@@ -438,8 +445,8 @@ class _DrawMapState extends State<DrawMap> {
     // }
     List<Widget> bItems = _buildItems();
     Widget expandedWidget = bItems.first;
-    for(int i = 0; i < items!.length; i++){
-      if(items![i].chapterReference!.path == chapterClicked.path){
+    for (int i = 0; i < items!.length; i++) {
+      if (items![i].chapterReference!.path == chapterClicked.path) {
         expandedWidget = bItems[i];
       }
     }
@@ -459,6 +466,67 @@ class _DrawMapState extends State<DrawMap> {
               ),
               ..._buildItems(),
               expandedWidget,
+              Positioned(
+                left: 50,
+                top: 50,
+                child: FFButtonWidget(
+                  text: 'Re-centre',
+                  onPressed: () {
+                    int expandedIndex = 0;
+                    double expandedX = 0.0;
+                    double expandedY = 0.0;
+                    for (int i = 0; i < items!.length; i++) {
+                      if (items![i].chapterReference!.path ==
+                          chapterClicked!.path) {
+                        expandedIndex = i;
+                        expandedX = items![i].offset!.dx;
+                        expandedY = items![i].offset!.dy;
+                        break;
+                      }
+                    }
+                    setState(() {
+                      for (int i = 0; i < items!.length; i++) {
+                        currentChapterList[i].xCoord =
+                            currentChapterList[i].xCoord! - expandedX + 100;
+                        currentChapterList[i].yCoord =
+                            currentChapterList[i].yCoord! - expandedY + 100;
+                        items![i] = items![i].copyWithNewOffset(
+                          Offset(
+                            currentChapterList[i].xCoord!,
+                            currentChapterList[i].yCoord!,
+                          ),
+                        );
+                      }
+                    });
+                  },
+                  options: FFButtonOptions(),
+                ),
+              ),
+              Positioned(
+                left: 150,
+                top: 50,
+                child: FFButtonWidget(
+                  text: 'Reset',
+                  onPressed: () {
+                    setState(() {
+                      for (int i = 0; i < items!.length; i++) {
+                        chapterClicked = currentChapterList[0].reference!;
+                        currentChapterList[i].xCoord =
+                            currentChapterList[i].originalXCoord;
+                        currentChapterList[i].yCoord =
+                            currentChapterList[i].originalYCoord;
+                        items![i] = items![i].copyWithNewOffset(
+                          Offset(
+                            currentChapterList[i].originalXCoord,
+                            currentChapterList[i].originalYCoord,
+                          ),
+                        );
+                      }
+                    });
+                  },
+                  options: FFButtonOptions(),
+                ),
+              ),
               // Positioned(left: 0, top: 0, child: insertArrowPad(setState)),
             ],
           ),
@@ -608,12 +676,12 @@ class _DrawMapState extends State<DrawMap> {
           globalSetState: setState,
         ),
       );
-      if(item.chapterReference!.path == chapterClicked!.path){
+      if (item.chapterReference!.path == chapterClicked!.path) {
         expandedItemIndex = itemCount;
       }
     });
     //%print('(D22)$res%$items');
-/*
+    /*
     //List<Widget> builtItems = _buildItems();
     int expandedItemIndex = 0;
     for (int i = 0; i < res.length; i++) {
@@ -711,7 +779,8 @@ class _Item extends StatelessWidget {
         }
       }
       for (int i = 0; i < items!.length; i++) {
-        if (items![i].chapterReference!.path == chapterClicked.path) {
+        if ((items![i].chapterReference!.path == chapterClicked.path) &&
+            (items![i].color == readStateColors[kNotVisitedIndex])) {
           items![i].color = readStateColors[kVisitedIndex];
           break;
         }
@@ -725,7 +794,7 @@ class _Item extends StatelessWidget {
     bool isRecentChangesZero = _previousDaysToHighlight == 0;
     double nodeSize = kDefaultNodeSize;
     return Positioned(
-     // duration: kStandardDuration,
+      // duration: kStandardDuration,
       left: offset!.dx - nodeSize / 2 /*+ xOffset*/,
       top: offset!.dy - nodeSize / 2 /*+ yOffset*/,
       child: GestureDetector(
@@ -746,10 +815,11 @@ class _Item extends StatelessWidget {
           duration: kStandardDuration,
           height: (chapterClicked!.path == chapterReference!.path) ? 400 : 75,
           width: (chapterClicked!.path == chapterReference!.path) ? 400 : 75,
+          curve: Curves.fastOutSlowIn,
           // color: (chapterClicked!.path == chapterReference!.path) ? Colors.amber : Colors.grey,
-          onEnd: () {
+          /*onEnd: () {
             print('(HW10)');
-          },
+          },*/
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -770,10 +840,54 @@ class _Item extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        new Text(
-                          title! /*style: Theme.of(context).textTheme.subhead*/,
+                        Row(
+                          children: [
+                            FlutterFlowIconButton(
+                              icon: kIconFullyRead,
+                              onPressed: () {
+                                print('HW40');
+                                for (
+                                  int i = 0;
+                                  i < currentChapterList.length;
+                                  i++
+                                ) {
+                                  if (chapterClicked.path ==
+                                      currentChapterList[i].reference!.path) {
+                                    globalSetState!(() {
+                                      currentChapterList[i].readStateIndex =
+                                          kFullyReadIndex;
+                                      items![i].color = readStateColors[kFullyReadIndex];
+                                    });
+                                  }
+                                }
+                              },
+                            ),
+                            FlutterFlowIconButton(
+                              icon: kIconHighlighted,
+                              onPressed: () {
+                                print('HW41');
+                                for (
+                                int i = 0;
+                                i < currentChapterList.length;
+                                i++
+                                ) {
+                                  if (chapterClicked.path ==
+                                      currentChapterList[i].reference!.path) {
+                                    globalSetState!(() {
+                                      currentChapterList[i].readStateIndex =
+                                          kHighlightedIndex;
+                                      items![i].color = readStateColors[kHighlightedIndex];
+                                    });
+                                  }
+                                }
+                              },
+                            ),
+                            Text(
+                              title! /*style: Theme.of(context).textTheme.subhead*/,
+                            ),
+                          ],
                         ),
-                        new Container(
+                        Container(
                           width: kDefaultNodeWidth,
                           margin: const EdgeInsets.only(top: 5.0),
                           child: //Text(body!),
@@ -783,7 +897,10 @@ class _Item extends StatelessWidget {
                               print('(HW1)${value}++++');
                               String targetRef = value.substring(1);
                               for (
-                                int i = 0; i < currentChapterList.length; i++){
+                                int i = 0;
+                                i < currentChapterList.length;
+                                i++
+                              ) {
                                 print(
                                   '(HW2)${i}????${targetRef}++++${currentChapterList[i].reference!.path}',
                                 );
@@ -791,19 +908,28 @@ class _Item extends StatelessWidget {
                                     currentChapterList[i].reference!.path) {
                                   chapterClicked =
                                       currentChapterList[i].reference!;
-                                  print('(HW3)${i}++++${chapterClicked.path}');
-                                  break;
+                                  print('(HW3A)${i}++++${chapterClicked.path}');
+                                 // break;
                                 }
                                 for (int i = 0; i < items!.length; i++) {
-                                  if (items![i].chapterReference!.path == chapterClicked.path) {
-                                    items![i].color = readStateColors[kVisitedIndex];
-                                    break;
+                                  print('(HW3AA)${i}++++${items![i].chapterReference!.path}&&&&$items![i].color}');
+                                  if ((items![i].chapterReference!.path ==
+                                          chapterClicked.path) &&
+                                      (items![i].color ==  readStateColors[kNotVisitedIndex])) {
+                                    items![i].color =
+                                        readStateColors[kVisitedIndex];
+                                    print('(HW3B)${i}++++${chapterClicked.path}');
+                                   // break;
                                   }
                                 }
                                 for (int i = 0; i < items!.length; i++) {
-                                  if (items![i].chapterReference!.path == targetRef) {
-                                    items![i].color = readStateColors[kVisitedIndex];
-                                    break;
+                                  if ((items![i].chapterReference!.path ==
+                                          targetRef) &&
+                                      (items![i].color == readStateColors[kNotVisitedIndex])) {
+                                    items![i].color =
+                                        readStateColors[kVisitedIndex];
+                                    print('(HW3C)${i}++++${targetRef}');
+                                   // break;
                                   }
                                 }
                                 globalSetState!(() {});
