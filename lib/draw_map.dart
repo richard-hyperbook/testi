@@ -56,29 +56,44 @@ class Chapter {
   double? xCoord;
   double? yCoord;
   DocumentReference? reference;
+  int? readStateIndex;
   Chapter({
     required this.title,
     required this.body,
     required this.xCoord,
     required this.yCoord,
     required this.reference,
+    required this.readStateIndex,
   });
 }
 
 List<Chapter> currentChapterList = [
   Chapter(
     title: 'title 1',
-    body: 'Peter said to them, <a href="#2" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">link to C4</a>"Repent, and each of you be baptized in the name of Jesus Christ for the forgiveness of your sins; and you will receive the gift of the Holy Spirit. "For the promise is for you and your children and for all who are far off, as many as the Lord our God will call to Himself." And with many other words he solemnly testified and kept on exhorting them, saying, "Be saved from this perverse generation!" So then, those who had received his word were baptized; and that day there were added about three thousand souls.(Acts 2:38-41)',
+    body:
+        'Peter said to them, <a href="#2" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">link to C2</a>  <a href="#3" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">link to C3</a>"Repent, and each of you be baptized in the name of Jesus Christ for the forgiveness of your sins; and you will receive the gift of the Holy Spirit. "For the promise is for you and your children and for all who are far off, as many as the Lord our God will call to Himself." And with many other words he solemnly testified and kept on exhorting them, saying, "Be saved from this perverse generation!" So then, those who had received his word were baptized; and that day there were added about three thousand souls.(Acts 2:38-41)',
     xCoord: 25.0,
     yCoord: 50.0,
     reference: DocumentReference(path: '1'),
+    readStateIndex: kNotVisitedIndex,
   ),
   Chapter(
     title: 'title 2',
-    body: "They were continually devoting themselves to the apostles' teaching and to fellowship, to the breaking of bread and to prayer. Everyone kept feeling a sense of awe; and many wonders and signs were taking place through the apostles. (Acts 2:42-43)",
+    body:
+        "They were continually devoting themselves to the apostles' teaching and to fellowship, to the breaking of bread and to prayer. Everyone kept feeling a sense of awe; and many wonders and signs were taking place through the apostles. (Acts 2:42-43)",
     xCoord: 300.0,
     yCoord: 400.0,
     reference: DocumentReference(path: '2'),
+    readStateIndex: kNotVisitedIndex,
+  ),
+  Chapter(
+    title: 'title 3',
+    body:
+        '<a href="#2">XXX</a>They were continually devoting themselves to the apostles teaching and to fellowship, to the breaking of bread and to prayer. Everyone kept feeling a sense of awe; and many wonders and signs were taking place through the apostles. (Acts 2:42-43)',
+    xCoord: 700.0,
+    yCoord: 500.0,
+    reference: DocumentReference(path: '3'),
+    readStateIndex: kNotVisitedIndex,
   ),
 ];
 
@@ -112,8 +127,7 @@ TextEditingController _numberInputTextController = TextEditingController();
 int _previousDaysToHighlight = 0;
 double xOffset = 0.0;
 double yOffset = 0.0;
-int hightlightChapterIndex = 0;
-
+// int hightlightChapterIndex = 0;
 const int kUserLevelNotLoggedIn = 0;
 const int kUserLevelFree = 1;
 const int kUserLevelPro = 2;
@@ -148,9 +162,33 @@ const double kDefaultNodeWidth = 350;
 const double kXFocus = 100;
 const double kYFocus = 100;
 
+const int kNotVisitedIndex = 0;
+const int kVisitedIndex = 1;
+const int kPartiallyReadIndex = 2;
+const int kFullyReadIndex = 3;
+const int kHighlightedIndex = 4;
+const int kDepredciatedIndex = 5;
+const String kNotVisitedString = 'Not visited';
+const String kVisitedString = 'Visited';
+const String kPartiallyReadString = 'Partially read';
+const String kFullyReadString = 'Fully Read';
+const String kHighlightedString = 'Highlighted';
+const String kDepredciatedString = 'Depreciated';
+const String kAwaitingApprovalString = 'Awaiting approval';
+
+const kStandardDuration = Duration(milliseconds: 500);
+
+final List<Color> readStateColors = [
+  Color.lerp(Colors.grey, Colors.white, 0.9)!,
+  Color.lerp(Colors.green, Colors.white, 0.75)!,
+  Colors.lightBlue,
+  Colors.blue,
+  Colors.amber,
+  Colors.brown,
+];
 
 double nodeSize = 40;
-DocumentReference chapterClicked = DocumentReference(path : '1');
+DocumentReference chapterClicked = DocumentReference(path: '1');
 
 class _DrawMapState extends State<DrawMap> {
   bool areChaptersLoaded = false;
@@ -398,6 +436,17 @@ class _DrawMapState extends State<DrawMap> {
     // if (connectedUserIndex == null) {
     //   return Center(child: Text('Hyperbook map not available'));
     // }
+    List<Widget> builtItems = _buildItems();
+    int expandedItemIndex = 0;
+    for (int i = 0; i < items!.length; i++) {
+      if (items![i].chapterReference!.path == chapterClicked!.path) {
+        expandedItemIndex = i;
+        break;
+      }
+    }
+    Widget tempItem = builtItems[expandedItemIndex];
+    builtItems[expandedItemIndex] = builtItems.last;
+    builtItems.last = tempItem;
     return Scaffold(
       body: SizedBox(
         height: 500,
@@ -412,8 +461,8 @@ class _DrawMapState extends State<DrawMap> {
                   //  links: links,//links.map((item) => item.offset!).toList(),
                 ),
               ),
-              ..._buildItems(),
-             // Positioned(left: 0, top: 0, child: insertArrowPad(setState)),
+              ...builtItems, //..._buildItems(),
+              // Positioned(left: 0, top: 0, child: insertArrowPad(setState)),
             ],
           ),
         ),
@@ -453,20 +502,21 @@ class _DrawMapState extends State<DrawMap> {
       final String body = currentChapterList[i].body!;
       Color color = Colors.amber;
       int state = 0;
-      print('(HW4)${i}....${hightlightChapterIndex}');
+      print('(HW4)${i}....${currentChapterList[i].reference}');
 
       items!.add(
         ItemModel(
           offset: Offset(x, y),
           title: title,
           body: body,
-          color: (i == hightlightChapterIndex) ? Colors.amber : Colors.grey,
+          color: readStateColors[currentChapterList[i].readStateIndex!],
           chapterState: state,
           borderRadius: 0,
           chapterReference: currentChapterList[i].reference,
         ),
       );
     }
+
     //%print('(D43-1)${links.length}');
     links.clear();
     for (int i = 0; i < currentChapterList.length; i++) {
@@ -517,7 +567,7 @@ class _DrawMapState extends State<DrawMap> {
   }
 
   Function onDragStart(int index) => (double x, double y) {
-    //%print('(D23-1)$x*$y?${Offset(x, y)}');
+    print('(D23-1)$x*$y?${Offset(x, y)}');
     setState(() {
       items![index] = items![index].copyWithNewOffset(Offset(x, y));
     });
@@ -525,7 +575,7 @@ class _DrawMapState extends State<DrawMap> {
 
   @override
   Widget build(BuildContext context) {
-    populateChapters();
+    //populateChapters();
     print('NN91Build draw_map');
 
     return makeScreen();
@@ -564,13 +614,16 @@ class _DrawMapState extends State<DrawMap> {
     return res;
   }
 }
-bool heightWidthFlag = false;
+
+// bool heightWidthFlag = false;
 bool borderRadius = false;
 bool heartbeatFlag = false;
 bool translateFlag = false;
 bool aflag = false;
 
-var animatedWithHeight = Text("My Height and width will start animating upon click");
+// var animatedWithHeight = Text(
+//   "My Height and width will start animating upon click",
+// );
 
 class _Item extends StatelessWidget {
   const _Item({
@@ -619,7 +672,7 @@ class _Item extends StatelessWidget {
   _handleDrag(details) {
     // final positionScreen = _keyScreen.currentContext!.findRenderObject()!.localToGlobal(Offset.zero);
 
-    print('(D23-0)$details£${details.globalPosition}');
+    print('(D23-0)$details££££${details.globalPosition}');
     final x = details.globalPosition.dx /*+ xOffset*/;
     final y = details.globalPosition.dy - 100 /*+ yOffset*/;
     onDragStart!(x, y);
@@ -627,46 +680,59 @@ class _Item extends StatelessWidget {
 
   bool highlightChapter(DateTime modifiedTime) {
     int days = DateTime.now().difference(modifiedTime).inDays;
-    print('(N2110)${days}#${DateTime.now()}&${modifiedTime}');
+    print('(N2110)${days}####${DateTime.now()}&&&&${modifiedTime}');
     return (days < _previousDaysToHighlight);
   }
 
-  void animateHeightWidth(DocumentReference chapterReference){
+  void animateHeightWidth(DocumentReference chapterReference) {
     globalSetState!(() {
       chapterClicked = chapterReference;
-      animatedWithHeight = Text("");
-      heightWidthFlag = !heightWidthFlag;
+      // animatedWithHeight = Text("");
+      // heightWidthFlag = !heightWidthFlag;
+      for (int i = 0; i < currentChapterList.length; i++) {
+        if (currentChapterList[i].reference!.path == chapterClicked.path) {
+          currentChapterList[i].readStateIndex = kVisitedIndex;
+          break;
+        }
+      }
+      for (int i = 0; i < items!.length; i++) {
+        if (items![i].chapterReference!.path == chapterClicked.path) {
+          items![i].color = readStateColors[kVisitedIndex];
+          break;
+        }
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print(
-      '(D27)${title}++++${body}^^^^${offset!.dy}',
-    );
+    print('(D27)${title}++++${body}^^^^${offset!.dy}');
     bool isRecentChangesZero = _previousDaysToHighlight == 0;
     double nodeSize = kDefaultNodeSize;
     return Positioned(
+     // duration: kStandardDuration,
       left: offset!.dx - nodeSize / 2 /*+ xOffset*/,
       top: offset!.dy - nodeSize / 2 /*+ yOffset*/,
       child: GestureDetector(
         onPanStart: (details) {
-          //%print('(N1000)${details}');
+          print('(N1000)${details}');
           _enableTranslation = false;
           _handleDrag(details);
         },
         onPanUpdate: (details) {
-          //%print('(N1001)${details}%${_transformationController.value}');
+          print('(N1001)${details}%${_transformationController.value}');
           _handleDrag(details);
           _enableTranslation = true;
         },
-        onDoubleTap: (){animateHeightWidth(chapterReference!);},
+        onDoubleTap: () {
+          animateHeightWidth(chapterReference!);
+        },
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 500),
+          duration: kStandardDuration,
           height: (chapterClicked!.path == chapterReference!.path) ? 400 : 75,
           width: (chapterClicked!.path == chapterReference!.path) ? 400 : 75,
-          color: Colors.amber,
-          onEnd: (){
+          // color: (chapterClicked!.path == chapterReference!.path) ? Colors.amber : Colors.grey,
+          onEnd: () {
             print('(HW10)');
           },
           child: Column(
@@ -689,32 +755,47 @@ class _Item extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        new Text(title!, /*style: Theme.of(context).textTheme.subhead*/),
+                        new Text(
+                          title! /*style: Theme.of(context).textTheme.subhead*/,
+                        ),
                         new Container(
                           width: kDefaultNodeWidth,
                           margin: const EdgeInsets.only(top: 5.0),
                           child: //Text(body!),
-                          HtmlWidget(body!,
-                          onTapUrl: (String value){
-                            print('(HW1)${value}++++');
-                            String targetRef = value.substring(1);
-                            for(int i = 0; i < currentChapterList.length; i++){
-                              print('(HW2)${i}????${targetRef}++++${currentChapterList[i].reference!.path}');
-                              if(targetRef == currentChapterList[i].reference!.path){
-                                hightlightChapterIndex = i;
-                                print('(HW3)${i}++++');
-                                double changeX = currentChapterList[i].xCoord! - kXFocus;
-                                double changeY = currentChapterList[i].xCoord!- kYFocus;
-                                for(int i = 0; i < currentChapterList.length; i++){
-                                  currentChapterList[i].xCoord = currentChapterList[i].xCoord! - kXFocus;
-                                  currentChapterList[i].yCoord = currentChapterList[i].yCoord! - kYFocus;
+                          HtmlWidget(
+                            body!,
+                            onTapUrl: (String value) {
+                              print('(HW1)${value}++++');
+                              String targetRef = value.substring(1);
+                              for (
+                                int i = 0; i < currentChapterList.length; i++){
+                                print(
+                                  '(HW2)${i}????${targetRef}++++${currentChapterList[i].reference!.path}',
+                                );
+                                if (targetRef ==
+                                    currentChapterList[i].reference!.path) {
+                                  chapterClicked =
+                                      currentChapterList[i].reference!;
+                                  print('(HW3)${i}++++${chapterClicked.path}');
+                                  break;
                                 }
-                                break;
+                                for (int i = 0; i < items!.length; i++) {
+                                  if (items![i].chapterReference!.path == chapterClicked.path) {
+                                    items![i].color = readStateColors[kVisitedIndex];
+                                    break;
+                                  }
+                                }
+                                for (int i = 0; i < items!.length; i++) {
+                                  if (items![i].chapterReference!.path == targetRef) {
+                                    items![i].color = readStateColors[kVisitedIndex];
+                                    break;
+                                  }
+                                }
+                                globalSetState!(() {});
                               }
-                              globalSetState!((){});
-                            }
-                            return true;
-                          },),
+                              return true;
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -801,7 +882,7 @@ class ItemModel {
   final Offset? offset;
   final String? title;
   final String? body;
-  final Color? color;
+  Color? color;
   final int? chapterState;
   final double? borderRadius;
   final double? chapterXCoord;
