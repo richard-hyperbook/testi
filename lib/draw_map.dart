@@ -56,31 +56,49 @@ class Chapter {
   double? xCoord;
   double? yCoord;
   DocumentReference? reference;
+  int? readStateIndex;
   Chapter({
     required this.title,
     required this.body,
     required this.xCoord,
     required this.yCoord,
     required this.reference,
+    required this.readStateIndex,
   });
 }
+
+
 
 List<Chapter> currentChapterList = [
   Chapter(
     title: 'title 1',
-    body: 'Peter said to them, <a href="#2" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">link to C4</a>"Repent, and each of you be baptized in the name of Jesus Christ for the forgiveness of your sins; and you will receive the gift of the Holy Spirit. "For the promise is for you and your children and for all who are far off, as many as the Lord our God will call to Himself." And with many other words he solemnly testified and kept on exhorting them, saying, "Be saved from this perverse generation!" So then, those who had received his word were baptized; and that day there were added about three thousand souls.(Acts 2:38-41)',
+    body:
+    'Peter said to them, <a href="#2" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">link to C2</a>  <a href="#3" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">link to C3</a>"Repent, and each of you be baptized in the name of Jesus Christ for the forgiveness of your sins; and you will receive the gift of the Holy Spirit. "For the promise is for you and your children and for all who are far off, as many as the Lord our God will call to Himself." And with many other words he solemnly testified and kept on exhorting them, saying, "Be saved from this perverse generation!" So then, those who had received his word were baptized; and that day there were added about three thousand souls.(Acts 2:38-41)',
     xCoord: 25.0,
     yCoord: 50.0,
     reference: DocumentReference(path: '1'),
+    readStateIndex: kNotVisitedIndex,
   ),
   Chapter(
     title: 'title 2',
-    body: "They were continually devoting themselves to the apostles' teaching and to fellowship, to the breaking of bread and to prayer. Everyone kept feeling a sense of awe; and many wonders and signs were taking place through the apostles. (Acts 2:42-43)",
+    body:
+    "They were continually devoting themselves to the apostles' teaching and to fellowship, to the breaking of bread and to prayer. Everyone kept feeling a sense of awe; and many wonders and signs were taking place through the apostles. (Acts 2:42-43)",
     xCoord: 300.0,
     yCoord: 400.0,
     reference: DocumentReference(path: '2'),
+    readStateIndex: kNotVisitedIndex,
+  ),
+  Chapter(
+    title: 'title 3',
+    body:
+    '<a href="#2">XXX</a>They were continually devoting themselves to the apostles teaching and to fellowship, to the breaking of bread and to prayer. Everyone kept feeling a sense of awe; and many wonders and signs were taking place through the apostles. (Acts 2:42-43)',
+    xCoord: 700.0,
+    yCoord: 500.0,
+    reference: DocumentReference(path: '3'),
+    readStateIndex: kNotVisitedIndex,
   ),
 ];
+
 
 class DrawMap extends StatefulWidget {
   const DrawMap({
@@ -91,6 +109,7 @@ class DrawMap extends StatefulWidget {
     this.hyperbook,
     this.isIntroductionMap,
     this.hyperbookTitle,
+
   });
 
   final double? width;
@@ -99,6 +118,7 @@ class DrawMap extends StatefulWidget {
   final DocumentReference? hyperbook;
   final bool? isIntroductionMap;
   final String? hyperbookTitle;
+
 
   @override
   _DrawMapState createState() => _DrawMapState();
@@ -147,6 +167,31 @@ const double zoomChangeMultiplyer = 1.1;
 const double kDefaultNodeWidth = 350;
 const double kXFocus = 100;
 const double kYFocus = 100;
+
+const int kNotVisitedIndex = 0;
+const int kVisitedIndex = 1;
+const int kPartiallyReadIndex = 2;
+const int kFullyReadIndex = 3;
+const int kHighlightedIndex = 4;
+const int kDepredciatedIndex = 5;
+const String kNotVisitedString = 'Not visited';
+const String kVisitedString = 'Visited';
+const String kPartiallyReadString = 'Partially read';
+const String kFullyReadString = 'Fully Read';
+const String kHighlightedString = 'Highlighted';
+const String kDepredciatedString = 'Depreciated';
+const String kAwaitingApprovalString = 'Awaiting approval';
+
+const kStandardDuration = Duration(milliseconds: 500);
+
+final List<Color> readStateColors = [
+  Color.lerp(Colors.grey, Colors.white, 0.9)!,
+  Color.lerp(Colors.green, Colors.white, 0.75)!,
+  Colors.lightBlue,
+  Colors.blue,
+  Colors.amber,
+  Colors.brown,
+];
 
 
 double nodeSize = 40;
@@ -398,6 +443,17 @@ class _DrawMapState extends State<DrawMap> {
     // if (connectedUserIndex == null) {
     //   return Center(child: Text('Hyperbook map not available'));
     // }
+    List<Widget> builtItems = _buildItems();
+    int expandedItemIndex = 0;
+    for (int i = 0; i < items!.length; i++) {
+      if (items![i].chapterReference!.path == chapterClicked!.path) {
+        expandedItemIndex = i;
+        break;
+      }
+    }
+    Widget tempItem = builtItems[expandedItemIndex];
+    builtItems[expandedItemIndex] = builtItems.last;
+    builtItems.last = tempItem;
     return Scaffold(
       body: SizedBox(
         height: 500,
