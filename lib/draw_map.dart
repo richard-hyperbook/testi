@@ -436,7 +436,13 @@ class _DrawMapState extends State<DrawMap> {
     // if (connectedUserIndex == null) {
     //   return Center(child: Text('Hyperbook map not available'));
     // }
-
+    List<Widget> bItems = _buildItems();
+    Widget expandedWidget = bItems.first;
+    for(int i = 0; i < items!.length; i++){
+      if(items![i].chapterReference!.path == chapterClicked.path){
+        expandedWidget = bItems[i];
+      }
+    }
     return Scaffold(
       body: SizedBox(
         height: 500,
@@ -452,6 +458,7 @@ class _DrawMapState extends State<DrawMap> {
                 ),
               ),
               ..._buildItems(),
+              expandedWidget,
               // Positioned(left: 0, top: 0, child: insertArrowPad(setState)),
             ],
           ),
@@ -604,12 +611,21 @@ class _DrawMapState extends State<DrawMap> {
       if(item.chapterReference!.path == chapterClicked!.path){
         expandedItemIndex = itemCount;
       }
-      itemCount++;
     });
     //%print('(D22)$res%$items');
-    Widget tempItem = res[expandedItemIndex];
-    res[expandedItemIndex] = res.last;
-    res.last = tempItem;
+/*
+    //List<Widget> builtItems = _buildItems();
+    int expandedItemIndex = 0;
+    for (int i = 0; i < res.length; i++) {
+      if (res[i].chapterReference!.path == chapterClicked!.path) {
+        expandedItemIndex = i;
+        break;
+      }
+    }
+    Widget tempItem = builtItems[expandedItemIndex];
+    builtItems[expandedItemIndex] = builtItems.last;
+    builtItems.last = tempItem;
+    */
     return res;
   }
 }
