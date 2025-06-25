@@ -19,6 +19,7 @@ import 'package:arrow_pad/arrow_pad.dart';
 // import 'package:infinity_view/infinity_view.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'flutter_flow_icon_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 GlobalKey _keyScreen = GlobalKey();
 // double _nodeSize = kDefaultNodeSize;
@@ -44,7 +45,7 @@ bool _showMapControls = false;
 
 // @JsonSerializable()
 class DocumentReference {
-  final String? path;
+  String? path;
   DocumentReference({this.path = '0'});
   // factory DocumentReference.fromJson(Map<String, dynamic> json) =>
   //     _$DocumentReferenceFromJson(json);
@@ -124,6 +125,7 @@ class DrawMap extends StatefulWidget {
 
 // List<ChaptersRecord> chapterDocs = [];
 
+SharedPreferences? globalSharedPrefs;
 List<ItemModel>? items;
 TransformationController _transformationController = TransformationController();
 TextEditingController _numberInputTextController = TextEditingController();
@@ -178,6 +180,8 @@ const String kFullyReadString = 'Fully Read';
 const String kHighlightedString = 'Highlighted';
 const String kDepredciatedString = 'Depreciated';
 const String kAwaitingApprovalString = 'Awaiting approval';
+const double kScreenPadding = 20;
+const FFButtonOptions kButtonOptions = FFButtonOptions(height: 18);
 
 const kStandardDuration = Duration(milliseconds: 500);
 
@@ -201,11 +205,33 @@ class _DrawMapState extends State<DrawMap> {
   TextEditingController nodeSizeTextController = TextEditingController();
   // HyperbooksRecord? thisHyperbook;
 
+  Future<void> restoreSharedPreferences() async {
+    globalSharedPrefs = await SharedPreferences.getInstance();
+
+    for (int i = 0; i < items!.length; i++) {
+      double? dx = globalSharedPrefs!.getDouble('x' + i.toString());
+      double? dy = globalSharedPrefs!.getDouble('y' + i.toString());
+      int? r = globalSharedPrefs!.getInt('r' + i.toString());
+      print('(GP1)$dx*$dy&$r');
+      if ((dx == null) || (dy == null) || (r == null)) {
+        return;
+      } else {
+        currentChapterList[i].xCoord = dx;
+        currentChapterList[i].yCoord = dy;
+        currentChapterList[i].readStateIndex = globalSharedPrefs!.getInt(
+          'r' + i.toString(),
+        );
+      }
+    }
+    chapterClicked.path = globalSharedPrefs!.getString('c');
+  }
+
   @override
   void initState() {
     super.initState();
     // setuptUserList(context);
     // thisHyperbook = getHyperbookRecordFromCache(hyperbook: widget.hyperbook);
+
     _enableTranslation = true;
     items = <ItemModel>[
       // ItemModel(offset: Offset(70, 100), text: 'text1A'),
@@ -221,6 +247,7 @@ class _DrawMapState extends State<DrawMap> {
       currentChapterList[i].originalXCoord = currentChapterList[i].xCoord!;
       currentChapterList[i].originalYCoord = currentChapterList[i].yCoord!;
     }
+
     print('(D1000)${items!.length}');
   }
 
@@ -451,86 +478,159 @@ class _DrawMapState extends State<DrawMap> {
       }
     }
     return Scaffold(
-      body: SizedBox(
-        height: 500,
-        width: 2000,
-        child: Center(
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: <Widget>[
-              CustomPaint(
-                size: const Size(double.infinity, double.infinity),
-                painter: CurvedPainter(
-                  //  links: links,//links.map((item) => item.offset!).toList(),
-                ),
-              ),
-              ..._buildItems(),
-              expandedWidget,
-              Positioned(
-                left: 50,
-                top: 50,
-                child: FFButtonWidget(
-                  text: 'Re-centre',
-                  onPressed: () {
-                    int expandedIndex = 0;
-                    double expandedX = 0.0;
-                    double expandedY = 0.0;
-                    for (int i = 0; i < items!.length; i++) {
-                      if (items![i].chapterReference!.path ==
-                          chapterClicked!.path) {
-                        expandedIndex = i;
-                        expandedX = items![i].offset!.dx;
-                        expandedY = items![i].offset!.dy;
-                        break;
-                      }
-                    }
-                    setState(() {
-                      for (int i = 0; i < items!.length; i++) {
-                        currentChapterList[i].xCoord =
-                            currentChapterList[i].xCoord! - expandedX + 100;
-                        currentChapterList[i].yCoord =
-                            currentChapterList[i].yCoord! - expandedY + 100;
-                        items![i] = items![i].copyWithNewOffset(
-                          Offset(
-                            currentChapterList[i].xCoord!,
-                            currentChapterList[i].yCoord!,
-                          ),
-                        );
-                      }
-                    });
-                  },
-                  options: FFButtonOptions(),
-                ),
-              ),
-              Positioned(
-                left: 150,
-                top: 50,
-                child: FFButtonWidget(
-                  text: 'Reset',
-                  onPressed: () {
-                    setState(() {
-                      for (int i = 0; i < items!.length; i++) {
-                        chapterClicked = currentChapterList[0].reference!;
-                        currentChapterList[i].xCoord =
-                            currentChapterList[i].originalXCoord;
-                        currentChapterList[i].yCoord =
-                            currentChapterList[i].originalYCoord;
-                        items![i] = items![i].copyWithNewOffset(
-                          Offset(
-                            currentChapterList[i].originalXCoord,
-                            currentChapterList[i].originalYCoord,
-                          ),
-                        );
-                      }
-                    });
-                  },
-                  options: FFButtonOptions(),
-                ),
-              ),
-              // Positioned(left: 0, top: 0, child: insertArrowPad(setState)),
-            ],
+      body: Stack(
+        clipBehavior: Clip.none,
+        children: <Widget>[
+          CustomPaint(
+            size: const Size(double.infinity, double.infinity),
+            painter: CurvedPainter(
+              //  links: links,//links.map((item) => item.offset!).toList(),
+            ),
           ),
-        ),
+          ..._buildItems(),
+          expandedWidget,
+          Positioned(
+            left: MediaQuery.sizeOf(context).width - 160,
+            top: 0,
+            child: Container(
+              height: 85,
+              width: 160,
+              padding: EdgeInsets.all(5),
+              color: Colors.lightBlue,
+              child: Wrap(
+                alignment: WrapAlignment.spaceAround,
+                runSpacing: 10,
+                spacing: 10,
+                children: [
+                  FFButtonWidget(
+                    text: 'Re-centre',
+                    onPressed: () {
+                      int expandedIndex = 0;
+                      double expandedX = 0.0;
+                      double expandedY = 0.0;
+                      for (int i = 0; i < items!.length; i++) {
+                        if (items![i].chapterReference!.path ==
+                            chapterClicked!.path) {
+                          expandedIndex = i;
+                          expandedX = items![i].offset!.dx;
+                          expandedY = items![i].offset!.dy;
+                          break;
+                        }
+                      }
+                      setState(() {
+                        for (int i = 0; i < items!.length; i++) {
+                          currentChapterList[i].xCoord =
+                              currentChapterList[i].xCoord! - expandedX + 100;
+                          currentChapterList[i].yCoord =
+                              currentChapterList[i].yCoord! - expandedY + 100;
+                          items![i] = items![i].copyWithNewOffset(
+                            Offset(
+                              currentChapterList[i].xCoord!,
+                              currentChapterList[i].yCoord!,
+                            ),
+                          );
+                        }
+                      });
+                    },
+                    options: kButtonOptions,
+                  ),
+                  FFButtonWidget(
+                    text: 'Reset',
+                    onPressed: () {
+                      setState(() {
+                        for (int i = 0; i < items!.length; i++) {
+                          chapterClicked = currentChapterList[0].reference!;
+                          currentChapterList[i].xCoord =
+                              currentChapterList[i].originalXCoord;
+                          currentChapterList[i].yCoord =
+                              currentChapterList[i].originalYCoord;
+                          items![i] = items![i].copyWithNewOffset(
+                            Offset(
+                              currentChapterList[i].originalXCoord,
+                              currentChapterList[i].originalYCoord,
+                            ),
+                          );
+                        }
+                        populateChapters();
+                      });
+                    },
+                    options: kButtonOptions,
+                  ),
+                  FFButtonWidget(
+                    text: 'Save',
+                    onPressed: () async {
+                      globalSharedPrefs = await SharedPreferences.getInstance();
+                      for (int i = 0; i < items!.length; i++) {
+                        globalSharedPrefs!.setDouble(
+                          'x' + i.toString(),
+                          items![i].offset!.dx,
+                        );
+                        globalSharedPrefs!.setDouble(
+                          'y' + i.toString(),
+                          items![i].offset!.dy,
+                        );
+                        globalSharedPrefs!.setInt(
+                          'r' + i.toString(),
+                          currentChapterList[i].readStateIndex!,
+                        );
+                      }
+                      globalSharedPrefs!.setString('c', chapterClicked.path!);
+                    },
+                    options: kButtonOptions,
+                  ),
+                  FFButtonWidget(
+                    text: 'Restore',
+                    onPressed: () async {
+                      populateChapters();
+                      await restoreSharedPreferences();
+                      setState(() {});
+                    },
+                    options: kButtonOptions,
+                  ),
+                  FFButtonWidget(
+                    text: 'All on screen',
+                    onPressed: () async {
+                      for (int i = 0; i < items!.length; i++) {
+                        if (items![i].offset!.dx < 0) {
+                          items![i] = items![i].copyWithNewOffset(
+                            Offset(0, items![i].offset!.dy),
+                          );
+                        }
+                        if (items![i].offset!.dx >
+                            MediaQuery.sizeOf(context).width) {
+                          items![i] = items![i].copyWithNewOffset(
+                            Offset(
+                              MediaQuery.sizeOf(context).width - kScreenPadding,
+                              items![i].offset!.dy,
+                            ),
+                          );
+                        }
+                        if (items![i].offset!.dy < 0) {
+                          items![i] = items![i].copyWithNewOffset(
+                            Offset(items![i].offset!.dx, 0),
+                          );
+                        }
+                        if (items![i].offset!.dy >
+                            MediaQuery.sizeOf(context).height) {
+                          items![i] = items![i].copyWithNewOffset(
+                            Offset(
+                              items![i].offset!.dx,
+                              MediaQuery.sizeOf(context).height -
+                                  kScreenPadding,
+                            ),
+                          );
+                        }
+                      }
+                     // populateChapters();
+                      setState(() {});
+                    },
+                    options: kButtonOptions,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       //   )
       //)
@@ -823,127 +923,139 @@ class _Item extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              MouseRegion(
-                cursor: SystemMouseCursors.precise,
-                child: Container(
-                  // width: nodeSize,
-                  // height: nodeSize,
-                  decoration: BoxDecoration(
-                    color: color,
-                    border: Border.all(color: Colors.black, width: 1),
-                    borderRadius: BorderRadius.circular(borderRadius!),
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    // width: nodeSize! - 8.0,
-                    // height: nodeSize! - 8.0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          children: [
-                            FlutterFlowIconButton(
-                              icon: kIconFullyRead,
-                              onPressed: () {
-                                print('HW40');
+              Expanded(
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.precise,
+                  child: Container(
+                    // width: nodeSize,
+                    // height: nodeSize,
+                    decoration: BoxDecoration(
+                      color: color,
+                      border: Border.all(color: Colors.black, width: 1),
+                      borderRadius: BorderRadius.circular(borderRadius!),
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      // width: nodeSize! - 8.0,
+                      // height: nodeSize! - 8.0,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            children: [
+                              FlutterFlowIconButton(
+                                icon: kIconFullyRead,
+                                onPressed: () {
+                                  print('HW40');
+                                  for (
+                                    int i = 0;
+                                    i < currentChapterList.length;
+                                    i++
+                                  ) {
+                                    if (chapterClicked.path ==
+                                        currentChapterList[i].reference!.path) {
+                                      globalSetState!(() {
+                                        currentChapterList[i].readStateIndex =
+                                            kFullyReadIndex;
+                                        items![i].color =
+                                            readStateColors[kFullyReadIndex];
+                                      });
+                                    }
+                                  }
+                                },
+                              ),
+                              FlutterFlowIconButton(
+                                icon: kIconHighlighted,
+                                onPressed: () {
+                                  print('HW41');
+                                  for (
+                                    int i = 0;
+                                    i < currentChapterList.length;
+                                    i++
+                                  ) {
+                                    if (chapterClicked.path ==
+                                        currentChapterList[i].reference!.path) {
+                                      globalSetState!(() {
+                                        currentChapterList[i].readStateIndex =
+                                            kHighlightedIndex;
+                                        items![i].color =
+                                            readStateColors[kHighlightedIndex];
+                                      });
+                                    }
+                                  }
+                                },
+                              ),
+                              Text(
+                                title! /*style: Theme.of(context).textTheme.subhead*/,
+                              ),
+                            ],
+                          ),
+                          Container(
+                            width: kDefaultNodeWidth,
+                            margin: const EdgeInsets.only(top: 5.0),
+                            child: //Text(body!),
+                            HtmlWidget(
+                              body!,
+                              onTapUrl: (String value) {
+                                print('(HW1)${value}++++');
+                                String targetRef = value.substring(1);
                                 for (
                                   int i = 0;
                                   i < currentChapterList.length;
                                   i++
                                 ) {
-                                  if (chapterClicked.path ==
+                                  print(
+                                    '(HW2)${i}????${targetRef}++++${currentChapterList[i].reference!.path}',
+                                  );
+                                  if (targetRef ==
                                       currentChapterList[i].reference!.path) {
-                                    globalSetState!(() {
-                                      currentChapterList[i].readStateIndex =
-                                          kFullyReadIndex;
-                                      items![i].color = readStateColors[kFullyReadIndex];
-                                    });
+                                    chapterClicked =
+                                        currentChapterList[i].reference!;
+                                    print(
+                                      '(HW3A)${i}++++${chapterClicked.path}',
+                                    );
+                                    // break;
                                   }
+                                  for (int i = 0; i < items!.length; i++) {
+                                    print(
+                                      '(HW3AA)${i}++++${items![i].chapterReference!.path}&&&&$items![i].color}',
+                                    );
+                                    if ((items![i].chapterReference!.path ==
+                                            chapterClicked.path) &&
+                                        (items![i].color ==
+                                            readStateColors[kNotVisitedIndex])) {
+                                      items![i].color =
+                                          readStateColors[kVisitedIndex];
+                                      print(
+                                        '(HW3B)${i}++++${chapterClicked.path}',
+                                      );
+                                      // break;
+                                    }
+                                  }
+                                  for (int i = 0; i < items!.length; i++) {
+                                    if ((items![i].chapterReference!.path ==
+                                            targetRef) &&
+                                        (items![i].color ==
+                                            readStateColors[kNotVisitedIndex])) {
+                                      items![i].color =
+                                          readStateColors[kVisitedIndex];
+                                      print('(HW3C)${i}++++${targetRef}');
+                                      // break;
+                                    }
+                                  }
+                                  globalSetState!(() {});
                                 }
+                                return true;
                               },
                             ),
-                            FlutterFlowIconButton(
-                              icon: kIconHighlighted,
-                              onPressed: () {
-                                print('HW41');
-                                for (
-                                int i = 0;
-                                i < currentChapterList.length;
-                                i++
-                                ) {
-                                  if (chapterClicked.path ==
-                                      currentChapterList[i].reference!.path) {
-                                    globalSetState!(() {
-                                      currentChapterList[i].readStateIndex =
-                                          kHighlightedIndex;
-                                      items![i].color = readStateColors[kHighlightedIndex];
-                                    });
-                                  }
-                                }
-                              },
-                            ),
-                            Text(
-                              title! /*style: Theme.of(context).textTheme.subhead*/,
-                            ),
-                          ],
-                        ),
-                        Container(
-                          width: kDefaultNodeWidth,
-                          margin: const EdgeInsets.only(top: 5.0),
-                          child: //Text(body!),
-                          HtmlWidget(
-                            body!,
-                            onTapUrl: (String value) {
-                              print('(HW1)${value}++++');
-                              String targetRef = value.substring(1);
-                              for (
-                                int i = 0;
-                                i < currentChapterList.length;
-                                i++
-                              ) {
-                                print(
-                                  '(HW2)${i}????${targetRef}++++${currentChapterList[i].reference!.path}',
-                                );
-                                if (targetRef ==
-                                    currentChapterList[i].reference!.path) {
-                                  chapterClicked =
-                                      currentChapterList[i].reference!;
-                                  print('(HW3A)${i}++++${chapterClicked.path}');
-                                 // break;
-                                }
-                                for (int i = 0; i < items!.length; i++) {
-                                  print('(HW3AA)${i}++++${items![i].chapterReference!.path}&&&&$items![i].color}');
-                                  if ((items![i].chapterReference!.path ==
-                                          chapterClicked.path) &&
-                                      (items![i].color ==  readStateColors[kNotVisitedIndex])) {
-                                    items![i].color =
-                                        readStateColors[kVisitedIndex];
-                                    print('(HW3B)${i}++++${chapterClicked.path}');
-                                   // break;
-                                  }
-                                }
-                                for (int i = 0; i < items!.length; i++) {
-                                  if ((items![i].chapterReference!.path ==
-                                          targetRef) &&
-                                      (items![i].color == readStateColors[kNotVisitedIndex])) {
-                                    items![i].color =
-                                        readStateColors[kVisitedIndex];
-                                    print('(HW3C)${i}++++${targetRef}');
-                                   // break;
-                                  }
-                                }
-                                globalSetState!(() {});
-                              }
-                              return true;
-                            },
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-              Text(title!),
+              Expanded(child: Text(title!)),
             ],
           ),
         ),
