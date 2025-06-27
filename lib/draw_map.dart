@@ -20,6 +20,8 @@ import 'package:arrow_pad/arrow_pad.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'flutter_flow_icon_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gap/gap.dart';
 
 GlobalKey _keyScreen = GlobalKey();
 // double _nodeSize = kDefaultNodeSize;
@@ -73,32 +75,132 @@ class Chapter {
 
 List<Chapter> currentChapterList = [
   Chapter(
-    title: 'title 1',
-    body:
-        'Peter said to them, <a href="#2" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">link to C2</a>  <a href="#3" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">link to C3</a>"Repent, and each of you be baptized in the name of Jesus Christ for the forgiveness of your sins; and you will receive the gift of the Holy Spirit. "For the promise is for you and your children and for all who are far off, as many as the Lord our God will call to Himself." And with many other words he solemnly testified and kept on exhorting them, saying, "Be saved from this perverse generation!" So then, those who had received his word were baptized; and that day there were added about three thousand souls.(Acts 2:38-41)',
-    xCoord: 25.0,
-    yCoord: 50.0,
-    reference: DocumentReference(path: '1'),
+    title: 'Introduction',
+    body: '''
+    <h3>This is a hyperbook.</h3>
+    A hyperbook is an ebook composed of chapters, where the chapters are arranged neither as a simple list
+    nor a a hierachy (with sections, sub-sections, etc.).  A hyperbook's chapters are an inconnected network; the links
+    between chapters indicate the logical connections between the contents of the chapters, just like the
+    hyperlinks connecting websites on the Internet.  The Hyperbook App automtically draws a map like this for each hyperbook, 
+    with chapters represented by boxes, and links shown as arrows.  
+    <a href="#How to read a hyperbook" target="_blank" style="background-color:black;color:white;padding:2px;
+    border:2px solid grey;border-radius:5px">Click here to discover how to read a hyperbook</a>
+    ''',
+    xCoord: 40.0,
+    yCoord: 140.0,
+    reference: DocumentReference(path: 'Introduction'),
     readStateIndex: kNotVisitedIndex,
   ),
   Chapter(
-    title: 'title 2',
-    body:
-        "They were continually devoting themselves to the apostles' teaching and to fellowship, to the breaking of bread and to prayer. Everyone kept feeling a sense of awe; and many wonders and signs were taking place through the apostles. (Acts 2:42-43)",
-    xCoord: 300.0,
+    title: 'How to read a hyperbook',
+    body:'''
+“Begin at the beginning," the King said, very gravely, "and go on till you come to the end: then stop.” (Lewis Carroll, <i>Alice in Wonderland</i>) 
+For many books, like <i>Alice in Wonderland</i>, that is sound advice.  However, some books are more meaningful when read by following links from one chapter to another.  
+In hyperbooks, the links appear like <a href="#Chapter Colours" 
+target="_blank" style="background-color:black;color:white;padding:2px;
+border:2px solid grey;border-radius:5px">this</a> in the text, and as arrows in the map.  Click <a href="#Chapter Colours" target="_blank" style="background-color:black;color:white;padding:2px;
+border:2px solid grey;border-radius:5px">here</a> to read more about following links and how the colours of chapters change, or click <a href="#Re-arranging the map" target="_blank" style="background-color:black;color:white;padding:2px;
+border:2px solid grey;border-radius:5px">here</a> to learn about re-arranging the map.  
+<p>
+Also, you can double-click any chapter to read it.
+    ''',
+
+           xCoord: 340.0,
+    yCoord: 140.0,
+    reference: DocumentReference(path: 'How to read a hyperbook'),
+    readStateIndex: kNotVisitedIndex,
+  ),
+  Chapter(
+    title: 'Chapter Colours',
+    body:'''
+    <p>In a normal book, we mark the place where we have read to by inserting a 
+    slip of paper as a bookmark.&nbsp; E-book readers often have a digital 
+    equivalent.&nbsp; With hyperbooks, as there is no defined reading order, 
+    the app keeps track for you by changing the colour of each chapter to 
+    reflect its state as you read it. These are the states that a 
+    chapter can be in:
+    <div style="background-color:white; text-align: left;"><p>
+    <span style="font-family: 'material-icons';height:100px;">visibility_off</span><font color="#9e9e9e"> not seen</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">battery_0_bar</span><font color="#8bc34a"> visited</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">battery_3_bar</span><font color="#00bcd4"> partially read</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">battery_full</span><font color="#673ab7"> fully read</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">highlight</span><font color="#ffc107"> highlighted</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">thumb_down</span><font color="#ff9e80"> depreciated (i.e. not of interest)</font></p><p>
+    <p><a href="#Choosing your colour palette" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">Choosing your colour palette</a>
+    <a href="#Changing the state of a chapter" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">
+    Changing the state of a chapter</a>
+    <a href="#684a6749835905780600" target="_blank"style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">Comment by AA Milne: Comment 1</a>
+     </div>
+    ''',
+    xCoord: 440.0,
+    yCoord: 240.0,
+    reference: DocumentReference(path: 'Chapter Colours'),
+    readStateIndex: kNotVisitedIndex,
+  ),
+  Chapter(
+    title: 'Re-arranging the map',
+    body:'''
+    
+    ''',
+    xCoord: 250.0,
     yCoord: 400.0,
-    reference: DocumentReference(path: '2'),
+    reference: DocumentReference(path: 'Re-arranging the map'),
     readStateIndex: kNotVisitedIndex,
   ),
   Chapter(
-    title: 'title 3',
-    body:
-        '<a href="#2">XXX</a>They were continually devoting themselves to the apostles teaching and to fellowship, to the breaking of bread and to prayer. Everyone kept feeling a sense of awe; and many wonders and signs were taking place through the apostles. (Acts 2:42-43)',
-    xCoord: 700.0,
+    title: 'Choosing your colour palette',
+    body:'''
+    <p>You can choose the colours used to represent the states that chapters 
+    can be in.&nbsp; To do this, click on <i>profile</i> at the bottom of most 
+    pages. Click on <i>Edit profile</i>, you will see this list - click on each 
+    icon in turn to choose a colour.</p><p>
+    <div style="background-color:white; text-align: left;"><p>
+    <span style="font-family: 'material-icons';height:100px;"><font size="5">visibility_off</font>&nbsp;</span>
+    <font color="#9e9e9e">not seen</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">
+    <font size="5">battery_0_bar</font></span>&nbsp;<font color="#8bc34a">visited</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;"><font size="5">battery_3_bar</font></span>&nbsp;<font color="#00bcd4">partially read</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">battery_full</span>&nbsp;<font color="#673ab7">fully read</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">highlight</span><font color="#ffc107">&nbsp;highlighted</font></p><p>
+    <span style="font-family: 'material-icons';height:100px;">thumb_down</span>&nbsp;<font color="#ff9e80">depreciated</font>
+    </p><p> <a href="#" target="_blank" style="background-color:black;color:white;padding:2px;border:2px solid grey;border-radius:5px">title</a><br></p>
+    </div>
+    ''',
+    xCoord: 340.0,
     yCoord: 500.0,
-    reference: DocumentReference(path: '3'),
+    reference: DocumentReference(path: 'Choosing your colour palette'),
     readStateIndex: kNotVisitedIndex,
   ),
+  Chapter(
+    title: 'Changing the state of a chapter',
+    body:'''
+    The Hyperbook App gives each chapter a colour that shows the attention
+    you have given to that chapter.  Colour
+    changes sometimes happen automatically, for example, when you visit a
+    chapter for the first time.  Other colour changes are under your control,
+    for example, if you click the <b>highlight</b> icon  
+    <span style="font-family: 'material-icons';height:100px;">highlight</span>
+     at the top of a chapter, the chapter's colour will change to indicate
+     that you wish to return to it later.
+     <p>
+     It is recommended that you click the <b>partially read</b> icon
+     <span style="font-family: 'material-icons';height:100px;"><font size="5">battery_3_bar</font></span>
+      when you start reading each chapter; and that you click the
+      <b>fully read</b> icon 
+       <span style="font-family: 'material-icons';height:100px;">battery_full</span> 
+       when you finish reading.  The <b>depreciated</b> icon can be clicked
+       to indicate that you are unlikely to want to return to this chapter.
+       
+     
+    
+    
+    ''',
+    xCoord: 600.0,
+    yCoord: 240.0,
+    reference: DocumentReference(path: 'Changing the state of a chapter'),
+    readStateIndex: kNotVisitedIndex,
+  ),
+
 ];
 
 class DrawMap extends StatefulWidget {
@@ -181,17 +283,29 @@ const String kHighlightedString = 'Highlighted';
 const String kDepredciatedString = 'Depreciated';
 const String kAwaitingApprovalString = 'Awaiting approval';
 const double kScreenPadding = 20;
-const FFButtonOptions kButtonOptions = FFButtonOptions(height: 18);
+const double kButtonHeight = 22;
+const FFButtonOptions kButtonOptions = FFButtonOptions(height: kButtonHeight);
+const double kBoxSizeWidthFactor = 50.0;
+const double kBoxSizeHeightFactor = 20.0;
+const double kCollapsedBoxWidth = 75.0;
+const double kCollapsedBoxHeight = 75.0;
+const double kMinBoxWidth = 300.0;
+const double kMinBoxHeight = 200.0;
+const double kButtonBoxWidth = 160;
+const double kButtonBoxHeight = kButtonHeight * 6;
+
+
+
 
 const kStandardDuration = Duration(milliseconds: 500);
 
 final List<Color> readStateColors = [
   Color.lerp(Colors.grey, Colors.white, 0.9)!,
   Color.lerp(Colors.green, Colors.white, 0.7)!,
-  Colors.lightBlue,
+  Color.lerp(Colors.blue, Colors.white, 0.7)!,
   Colors.blue,
   Colors.amber,
-  Colors.brown,
+  Color.lerp(Colors.brown, Colors.orange, 0.3)!,
 ];
 
 double nodeSize = 40;
@@ -481,6 +595,29 @@ class _DrawMapState extends State<DrawMap> {
       body: Stack(
         clipBehavior: Clip.none,
         children: <Widget>[
+          Positioned(
+            left: 10,
+            top: 10,
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SvgPicture.asset(
+                    'assets/images/hyperbooklogosvg10.svg',
+                    width: 60,
+                    height: 60,
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Hyperbook App', style: TextStyle(fontSize: 25)),
+                    Text('Double-click "Introduction" to get started')
+                  ],
+                ),
+              ],
+            ),
+          ),
           CustomPaint(
             size: const Size(double.infinity, double.infinity),
             painter: CurvedPainter(
@@ -492,150 +629,186 @@ class _DrawMapState extends State<DrawMap> {
           Positioned(
             left: MediaQuery.sizeOf(context).width - 160,
             top: 0,
-            child: Container(
-              height: 85,
-              width: 160,
-              padding: EdgeInsets.all(5),
-              color: Colors.lightBlue,
-              child: Wrap(
-                alignment: WrapAlignment.spaceAround,
-                runSpacing: 10,
-                spacing: 10,
-                children: [
-                  FFButtonWidget(
-                    text: 'Re-centre',
-                    onPressed: () {
-                      int expandedIndex = 0;
-                      double expandedX = 0.0;
-                      double expandedY = 0.0;
-                      for (int i = 0; i < items!.length; i++) {
-                        if (items![i].chapterReference!.path ==
-                            chapterClicked!.path) {
-                          expandedIndex = i;
-                          expandedX = items![i].offset!.dx;
-                          expandedY = items![i].offset!.dy;
-                          break;
-                        }
-                      }
-                      setState(() {
-                        for (int i = 0; i < items!.length; i++) {
-                          currentChapterList[i].xCoord =
-                              currentChapterList[i].xCoord! - expandedX + 100;
-                          currentChapterList[i].yCoord =
-                              currentChapterList[i].yCoord! - expandedY + 100;
-                          items![i] = items![i].copyWithNewOffset(
-                            Offset(
-                              currentChapterList[i].xCoord!,
-                              currentChapterList[i].yCoord!,
-                            ),
-                          );
-                        }
-                      });
-                    },
-                    options: kButtonOptions,
-                  ),
-                  FFButtonWidget(
-                    text: 'Reset',
-                    onPressed: () {
-                      setState(() {
-                        for (int i = 0; i < items!.length; i++) {
-                          chapterClicked = currentChapterList[0].reference!;
-                          currentChapterList[i].xCoord =
-                              currentChapterList[i].originalXCoord;
-                          currentChapterList[i].yCoord =
-                              currentChapterList[i].originalYCoord;
-                          items![i] = items![i].copyWithNewOffset(
-                            Offset(
-                              currentChapterList[i].originalXCoord,
-                              currentChapterList[i].originalYCoord,
-                            ),
-                          );
-                        }
-                        populateChapters();
-                      });
-                    },
-                    options: kButtonOptions,
-                  ),
-                  FFButtonWidget(
-                    text: 'Save',
-                    onPressed: () async {
-                      globalSharedPrefs = await SharedPreferences.getInstance();
-                      for (int i = 0; i < items!.length; i++) {
-                        globalSharedPrefs!.setDouble(
-                          'x' + i.toString(),
-                          items![i].offset!.dx,
-                        );
-                        globalSharedPrefs!.setDouble(
-                          'y' + i.toString(),
-                          items![i].offset!.dy,
-                        );
-                        globalSharedPrefs!.setInt(
-                          'r' + i.toString(),
-                          currentChapterList[i].readStateIndex!,
-                        );
-                      }
-                      globalSharedPrefs!.setString('c', chapterClicked.path!);
-                    },
-                    options: kButtonOptions,
-                  ),
-                  FFButtonWidget(
-                    text: 'Restore',
-                    onPressed: () async {
-                      populateChapters();
-                      await restoreSharedPreferences();
-                      setState(() {});
-                    },
-                    options: kButtonOptions,
-                  ),
-                  FFButtonWidget(
-                    text: 'All on screen',
-                    onPressed: () async {
-                      for (int i = 0; i < items!.length; i++) {
-                        if (items![i].offset!.dx < 0) {
-                          items![i] = items![i].copyWithNewOffset(
-                            Offset(0, items![i].offset!.dy),
-                          );
-                        }
-                        if (items![i].offset!.dx >
-                            MediaQuery.sizeOf(context).width) {
-                          items![i] = items![i].copyWithNewOffset(
-                            Offset(
-                              MediaQuery.sizeOf(context).width - kScreenPadding,
-                              items![i].offset!.dy,
-                            ),
-                          );
-                        }
-                        if (items![i].offset!.dy < 0) {
-                          items![i] = items![i].copyWithNewOffset(
-                            Offset(items![i].offset!.dx, 0),
-                          );
-                        }
-                        if (items![i].offset!.dy >
-                            MediaQuery.sizeOf(context).height) {
-                          items![i] = items![i].copyWithNewOffset(
-                            Offset(
-                              items![i].offset!.dx,
-                              MediaQuery.sizeOf(context).height -
-                                  kScreenPadding,
-                            ),
-                          );
-                        }
-                      }
-                     // populateChapters();
-                      setState(() {});
-                    },
-                    options: kButtonOptions,
-                  ),
-                ],
-              ),
-            ),
-          ),
+            child: insertButtonBoxIcon())
         ],
       ),
       //   )
       //)
     );
   }
+
+  Widget insertButtonBox(){
+    return Container(
+      height: kButtonBoxHeight,
+      width: kButtonBoxWidth,
+      padding: EdgeInsets.all(5),
+      color: Colors.lightBlue,
+      child: Wrap(
+        alignment: WrapAlignment.spaceAround,
+        runSpacing: 10,
+        spacing: 10,
+        children: [
+          FFButtonWidget(
+            text: 'Re-centre',
+            onPressed: () {
+              int expandedIndex = 0;
+              double expandedX = 0.0;
+              double expandedY = 0.0;
+              for (int i = 0; i < items!.length; i++) {
+                if (items![i].chapterReference!.path ==
+                    chapterClicked!.path) {
+                  expandedIndex = i;
+                  expandedX = items![i].offset!.dx;
+                  expandedY = items![i].offset!.dy;
+                  break;
+                }
+              }
+              setState(() {
+                for (int i = 0; i < items!.length; i++) {
+                  currentChapterList[i].xCoord =
+                      currentChapterList[i].xCoord! - expandedX + 100;
+                  currentChapterList[i].yCoord =
+                      currentChapterList[i].yCoord! - expandedY + 100;
+                  items![i] = items![i].copyWithNewOffset(
+                    Offset(
+                      currentChapterList[i].xCoord!,
+                      currentChapterList[i].yCoord!,
+                    ),
+                  );
+                }
+              });
+            },
+            options: kButtonOptions,
+          ),
+          FFButtonWidget(
+            text: 'Reset',
+            onPressed: () {
+              setState(() {
+                for (int i = 0; i < items!.length; i++) {
+                  chapterClicked = currentChapterList[0].reference!;
+                  currentChapterList[i].xCoord =
+                      currentChapterList[i].originalXCoord;
+                  currentChapterList[i].yCoord =
+                      currentChapterList[i].originalYCoord;
+                  items![i] = items![i].copyWithNewOffset(
+                    Offset(
+                      currentChapterList[i].originalXCoord,
+                      currentChapterList[i].originalYCoord,
+                    ),
+                  );
+                }
+                populateChapters();
+              });
+            },
+            options: kButtonOptions,
+          ),
+          FFButtonWidget(
+            text: 'Save',
+            onPressed: () async {
+              globalSharedPrefs = await SharedPreferences.getInstance();
+              for (int i = 0; i < items!.length; i++) {
+                globalSharedPrefs!.setDouble(
+                  'x' + i.toString(),
+                  items![i].offset!.dx,
+                );
+                globalSharedPrefs!.setDouble(
+                  'y' + i.toString(),
+                  items![i].offset!.dy,
+                );
+                globalSharedPrefs!.setInt(
+                  'r' + i.toString(),
+                  currentChapterList[i].readStateIndex!,
+                );
+              }
+              globalSharedPrefs!.setString('c', chapterClicked.path!);
+            },
+            options: kButtonOptions,
+          ),
+          FFButtonWidget(
+            text: 'Restore',
+            onPressed: () async {
+              populateChapters();
+              await restoreSharedPreferences();
+              setState(() {});
+            },
+            options: kButtonOptions,
+          ),
+          FFButtonWidget(
+            text: 'All on screen',
+            onPressed: () async {
+              for (int i = 0; i < items!.length; i++) {
+                if (items![i].offset!.dx < 0) {
+                  items![i] = items![i].copyWithNewOffset(
+                    Offset(0, items![i].offset!.dy),
+                  );
+                }
+                if (items![i].offset!.dx >
+                    MediaQuery.sizeOf(context).width) {
+                  items![i] = items![i].copyWithNewOffset(
+                    Offset(
+                      MediaQuery.sizeOf(context).width - kScreenPadding,
+                      items![i].offset!.dy,
+                    ),
+                  );
+                }
+                if (items![i].offset!.dy < 0) {
+                  items![i] = items![i].copyWithNewOffset(
+                    Offset(items![i].offset!.dx, 0),
+                  );
+                }
+                if (items![i].offset!.dy >
+                    MediaQuery.sizeOf(context).height) {
+                  items![i] = items![i].copyWithNewOffset(
+                    Offset(
+                      items![i].offset!.dx,
+                      MediaQuery.sizeOf(context).height -
+                          kScreenPadding,
+                    ),
+                  );
+                }
+              }
+              // populateChapters();
+              setState(() {});
+            },
+            options: kButtonOptions,
+          ),
+        ],
+      ),
+    );
+
+  }
+
+  Widget insertButtonBoxIcon(){
+    return SizedBox(
+      width: 40,
+      height: 40,
+      child: FlutterFlowIconButton(
+          tooltipMessage: 'Map preferences',
+          borderColor: Colors.black,
+          borderRadius: 30,
+          borderWidth: 1,
+          buttonSize: 60,
+          icon: kIconSettings,
+          onPressed: () async {
+            //%print('(D10-1)');
+            showDialog<String>(
+              context: context,
+              builder: (context) {
+                return StatefulBuilder(
+                    builder: (context, setState) {
+                      return AlertDialog(
+                          title: Text('Map preferences'),
+                          content: SingleChildScrollView(
+                            child: insertButtonBox(),
+                                ),
+                          );
+                    });
+              },
+            );
+          }),
+    );
+  }
+
 
   void populateChapters(
     //   DocumentReference? parent
@@ -888,6 +1061,24 @@ class _Item extends StatelessWidget {
     });
   }
 
+  double widthOfBox(int textLength){
+    double doubleTextLength = textLength.toDouble();
+    double factor = sqrt(doubleTextLength) * kBoxSizeWidthFactor;
+    if (factor < kMinBoxWidth){
+      factor = kMinBoxWidth;
+    }
+    return factor;
+  }
+
+  double heightOfBox(int textLength){
+    double doubleTextLength = textLength.toDouble();
+    double factor = sqrt(doubleTextLength) * kBoxSizeHeightFactor;
+    if (factor < kMinBoxHeight){
+      factor = kMinBoxHeight;
+    }
+    return factor;
+  }
+
   @override
   Widget build(BuildContext context) {
     print('(D27)${title}++++${body}^^^^${offset!.dy}');
@@ -913,8 +1104,8 @@ class _Item extends StatelessWidget {
         },
         child: AnimatedContainer(
           duration: kStandardDuration,
-          height: (chapterClicked!.path == chapterReference!.path) ? 400 : 75,
-          width: (chapterClicked!.path == chapterReference!.path) ? 400 : 75,
+          width: (chapterClicked!.path == chapterReference!.path) ? widthOfBox(body!.length) : kCollapsedBoxWidth,
+          height: (chapterClicked!.path == chapterReference!.path) ? heightOfBox(body!.length) : kCollapsedBoxHeight,
           curve: Curves.fastOutSlowIn,
           // color: (chapterClicked!.path == chapterReference!.path) ? Colors.amber : Colors.grey,
           /*onEnd: () {
@@ -938,124 +1129,170 @@ class _Item extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       // width: nodeSize! - 8.0,
                       // height: nodeSize! - 8.0,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            children: [
-                              FlutterFlowIconButton(
-                                icon: kIconFullyRead,
-                                onPressed: () {
-                                  print('HW40');
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              children: [
+                                Text(
+                                  title!, overflow: TextOverflow.fade, /*style: Theme.of(context).textTheme.subhead*/
+                                ),
+                                SizedBox(width: 60),
+                                FlutterFlowIconButton(
+                                  icon: kIconPariallyRead,
+                                  onPressed: () {
+                                    print('HW40');
+                                    for (
+                                      int i = 0;
+                                      i < currentChapterList.length;
+                                      i++
+                                    ) {
+                                      if (chapterClicked.path ==
+                                          currentChapterList[i].reference!.path) {
+                                        globalSetState!(() {
+                                          currentChapterList[i].readStateIndex =
+                                              kFullyReadIndex;
+                                          items![i].color =
+                                              readStateColors[kPartiallyReadIndex];
+                                        });
+                                      }
+                                    }
+                                  },
+                                ),
+                                FlutterFlowIconButton(
+                                  icon: kIconFullyRead,
+                                  onPressed: () {
+                                    print('HW40');
+                                    for (
+                                    int i = 0;
+                                    i < currentChapterList.length;
+                                    i++
+                                    ) {
+                                      if (chapterClicked.path ==
+                                          currentChapterList[i].reference!.path) {
+                                        globalSetState!(() {
+                                          currentChapterList[i].readStateIndex =
+                                              kFullyReadIndex;
+                                          items![i].color =
+                                          readStateColors[kFullyReadIndex];
+                                        });
+                                      }
+                                    }
+                                  },
+                                ),
+                                FlutterFlowIconButton(
+                                  icon: kIconHighlighted,
+                                  onPressed: () {
+                                    print('HW41');
+                                    for (
+                                      int i = 0;
+                                      i < currentChapterList.length;
+                                      i++
+                                    ) {
+                                      if (chapterClicked.path ==
+                                          currentChapterList[i].reference!.path) {
+                                        globalSetState!(() {
+                                          currentChapterList[i].readStateIndex =
+                                              kHighlightedIndex;
+                                          items![i].color =
+                                              readStateColors[kHighlightedIndex];
+                                        });
+                                      }
+                                    }
+                                  },
+                                ),
+                                FlutterFlowIconButton(
+                                  icon: kIconDepreciated,
+                                  onPressed: () {
+                                    print('HW41');
+                                    for (
+                                    int i = 0;
+                                    i < currentChapterList.length;
+                                    i++
+                                    ) {
+                                      if (chapterClicked.path ==
+                                          currentChapterList[i].reference!.path) {
+                                        globalSetState!(() {
+                                          currentChapterList[i].readStateIndex =
+                                              kHighlightedIndex;
+                                          items![i].color =
+                                          readStateColors[kDepredciatedIndex];
+                                        });
+                                      }
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                            Container(
+                              width: kDefaultNodeWidth,
+                              margin: const EdgeInsets.only(top: 5.0),
+                              child: //Text(body!),
+                              HtmlWidget(
+                                body!,
+                                onTapUrl: (String value) {
+                                  print('(HW1)${value}++++');
+                                  String targetRef = value.substring(1);
                                   for (
                                     int i = 0;
                                     i < currentChapterList.length;
                                     i++
                                   ) {
-                                    if (chapterClicked.path ==
-                                        currentChapterList[i].reference!.path) {
-                                      globalSetState!(() {
-                                        currentChapterList[i].readStateIndex =
-                                            kFullyReadIndex;
-                                        items![i].color =
-                                            readStateColors[kFullyReadIndex];
-                                      });
-                                    }
-                                  }
-                                },
-                              ),
-                              FlutterFlowIconButton(
-                                icon: kIconHighlighted,
-                                onPressed: () {
-                                  print('HW41');
-                                  for (
-                                    int i = 0;
-                                    i < currentChapterList.length;
-                                    i++
-                                  ) {
-                                    if (chapterClicked.path ==
-                                        currentChapterList[i].reference!.path) {
-                                      globalSetState!(() {
-                                        currentChapterList[i].readStateIndex =
-                                            kHighlightedIndex;
-                                        items![i].color =
-                                            readStateColors[kHighlightedIndex];
-                                      });
-                                    }
-                                  }
-                                },
-                              ),
-                              Text(
-                                title! /*style: Theme.of(context).textTheme.subhead*/,
-                              ),
-                            ],
-                          ),
-                          Container(
-                            width: kDefaultNodeWidth,
-                            margin: const EdgeInsets.only(top: 5.0),
-                            child: //Text(body!),
-                            HtmlWidget(
-                              body!,
-                              onTapUrl: (String value) {
-                                print('(HW1)${value}++++');
-                                String targetRef = value.substring(1);
-                                for (
-                                  int i = 0;
-                                  i < currentChapterList.length;
-                                  i++
-                                ) {
-                                  print(
-                                    '(HW2)${i}????${targetRef}++++${currentChapterList[i].reference!.path}',
-                                  );
-                                  if (targetRef ==
-                                      currentChapterList[i].reference!.path) {
-                                    chapterClicked =
-                                        currentChapterList[i].reference!;
                                     print(
-                                      '(HW3A)${i}++++${chapterClicked.path}',
+                                      '(HW2)${i}????${targetRef}++++${currentChapterList[i].reference!.path}',
                                     );
-                                    // break;
-                                  }
-                                  for (int i = 0; i < items!.length; i++) {
-                                    print(
-                                      '(HW3AA)${i}++++${items![i].chapterReference!.path}&&&&$items![i].color}',
-                                    );
-                                    if ((items![i].chapterReference!.path ==
-                                            chapterClicked.path) &&
-                                        (items![i].color ==
-                                            readStateColors[kNotVisitedIndex])) {
-                                      items![i].color =
-                                          readStateColors[kVisitedIndex];
+                                    if (targetRef ==
+                                        currentChapterList[i].reference!.path) {
+                                      chapterClicked =
+                                          currentChapterList[i].reference!;
                                       print(
-                                        '(HW3B)${i}++++${chapterClicked.path}',
+                                        '(HW3A)${i}++++${chapterClicked.path}',
                                       );
                                       // break;
                                     }
-                                  }
-                                  for (int i = 0; i < items!.length; i++) {
-                                    if ((items![i].chapterReference!.path ==
-                                            targetRef) &&
-                                        (items![i].color ==
-                                            readStateColors[kNotVisitedIndex])) {
-                                      items![i].color =
-                                          readStateColors[kVisitedIndex];
-                                      print('(HW3C)${i}++++${targetRef}');
-                                      // break;
+                                    for (int i = 0; i < items!.length; i++) {
+                                      print(
+                                        '(HW3AA)${i}++++${items![i].chapterReference!.path}&&&&$items![i].color}',
+                                      );
+                                      if ((items![i].chapterReference!.path ==
+                                              chapterClicked.path) &&
+                                          (items![i].color ==
+                                              readStateColors[kNotVisitedIndex])) {
+                                        items![i].color =
+                                            readStateColors[kVisitedIndex];
+                                        print(
+                                          '(HW3B)${i}++++${chapterClicked.path}',
+                                        );
+                                        // break;
+                                      }
                                     }
+                                    for (int i = 0; i < items!.length; i++) {
+                                      if ((items![i].chapterReference!.path ==
+                                              targetRef) &&
+                                          (items![i].color ==
+                                              readStateColors[kNotVisitedIndex])) {
+                                        items![i].color =
+                                            readStateColors[kVisitedIndex];
+                                        print('(HW3C)${i}++++${targetRef}');
+                                        // break;
+                                      }
+                                    }
+                                    globalSetState!(() {});
                                   }
-                                  globalSetState!(() {});
-                                }
-                                return true;
-                              },
+                                  return true;
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-              Expanded(child: Text(title!)),
+              Expanded(child: Text(title!, overflow: TextOverflow.visible, softWrap: false,)),
             ],
           ),
         ),
